@@ -2,9 +2,10 @@ package com.example.skill_swap.skill_swap_project.Services;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path; 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.skill_swap.skill_swap_project.Entities.User;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.UserData;
 
 
 
@@ -43,20 +45,44 @@ public class UserService {
 		 return Optional.empty();
 	}
 	
-	public User updateUserProfile(Long userId, String newEmail, String newBio) throws Exception {
+	public User updateUserProfile(Long userId, String name,String email, String bio) throws Exception {
 	    User user = userRepository.findById(userId)
-	        .orElseThrow(() -> new Exception("User not found"));
-
-	    if (newEmail != null && !newEmail.trim().isEmpty()) {
-	        user.setEmail(newEmail.trim());
+	        .orElseThrow(() -> new RuntimeException("User not found"));
+	    
+	    if (name != null && !name.isBlank()) {
+	        user.setName(name);
 	    }
 
-	    if (newBio != null && !newBio.trim().isEmpty()) {
-	        user.setBio(newBio.trim());
+	    if (email != null && !email.isBlank()) {
+	        user.setEmail(email);
 	    }
 
+	    if (bio != null && !bio.isBlank()) {
+	        user.setBio(bio);
+	    }
 	    return userRepository.save(user);
 	}
+
+	public User addLinkedIn(Long userId, String linkedInUrl) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        if (linkedInUrl != null && !linkedInUrl.trim().isEmpty()) {
+            user.setLinkedInUrl(linkedInUrl.trim());
+        }
+
+        return userRepository.save(user);
+    }
+	 public User addGithub(Long userId, String githubUrl) throws Exception {
+	        User user = userRepository.findById(userId)
+	                .orElseThrow(() -> new Exception("User not found"));
+
+	        if (githubUrl != null && !githubUrl.trim().isEmpty()) {
+	            user.setGithubUrl(githubUrl.trim());
+	        }
+
+	        return userRepository.save(user);
+	    }
 	public String uploadProfilePicture(Long userId, MultipartFile file) throws IOException {
 	    User user = userRepository.findById(userId)
 	                  .orElseThrow(() -> new RuntimeException("User not found"));
@@ -83,6 +109,64 @@ public class UserService {
 
 	    return profilePicUrl;
 	}
+
+    public String uploadCertificate(Long userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String uploadDir = "uploads/certificates/";
+        Path uploadPath = Paths.get(uploadDir);
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String fileName = userId + "_" + file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(fileName);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        String certificateUrl = "/" + uploadDir + fileName;
+        user.getCertificateUrls().add(certificateUrl);
+        userRepository.save(user);
+
+        return certificateUrl;
+    }
+
+    public User deleteCertificate(Long userId, String certificateUrl) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        List<String> certificates = user.getCertificateUrls();
+        if (certificates.contains(certificateUrl)) {
+            certificates.remove(certificateUrl);
+            Path path = Paths.get("." + certificateUrl);
+            Files.deleteIfExists(path);
+            userRepository.save(user);
+        } else {
+            throw new Exception("Certificate not found");
+        }
+
+        return user;
+    }
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
+    
+    public UserData getUserProfile(Long userId) throws Exception {
+    	User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException ("User not found"));
+    	
+    	UserData userdata = new UserData();
+    	userdata.setName(user.getName());
+    	userdata.setEmail(user.getEmail());
+    	userdata.setBio(user.getBio());
+    	userdata.setLinkedInUrl(user.getLinkedInUrl());
+    	userdata.setGithubUrl(user.getGithubUrl());
+    	userdata.setCertificateUrls(user.getCertificateUrls());
+    	
+    	return userdata;
+    }
+
 
 
 

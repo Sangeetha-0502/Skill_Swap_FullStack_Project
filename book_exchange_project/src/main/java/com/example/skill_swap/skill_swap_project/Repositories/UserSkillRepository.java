@@ -13,15 +13,14 @@ import com.example.skill_swap.skill_swap_project.Enums.SkillType;
 @Repository
 public interface UserSkillRepository extends JpaRepository<UserSkill, Long> {
 
-    // Find all user skills by user and type (TEACH or LEARN)
-    List<UserSkill> findByUserAndType(User user, SkillType type);
-
-    // Find all users who have a specific skill and skill type
-    List<UserSkill> findBySkillAndType(Skill skill, SkillType type);
-
+   
     // (Optional) Find all user skills for a user
-    List<UserSkill> findByUser(User user);
+    List<UserSkill> findByUserId(Long userId);
 
     // (Optional) Check if user has a particular skill of a specific type
     boolean existsByUserAndSkillAndType(User user, Skill skill, SkillType type);
+
+	List<UserSkill> findByUserAndType(User currentUser, SkillType learn);
+
+	List<UserSkill> findBySkillAndType(Skill skill, SkillType teach);
 }

@@ -1,7 +1,6 @@
 package com.example.skill_swap.skill_swap_project.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import com.example.skill_swap.skill_swap_project.Enums.SkillType;
 import com.example.skill_swap.skill_swap_project.Repositories.SkillRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.UserSkillRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.UserSkillDto;
 
 @Service
 public class UserSkillServices {
@@ -26,11 +26,11 @@ public class UserSkillServices {
 	@Autowired
 	private SkillRepository skillrepository;
 
-	public UserSkill addUserSkill(Long userId, Long skillId, String skillName, SkillType skilltype) throws Exception {
+	public UserSkill addUserSkill(UserSkillDto userskilldto) throws Exception {
 
-		User user = userrepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
+		User user = userrepository.findById(userskilldto.getUserId()).orElseThrow(() -> new Exception("User not found"));
 
-		String normalizedSkillName = skillName.trim().toLowerCase();
+		String normalizedSkillName = userskilldto.getSkillName().toLowerCase();
 
 		Skill skill = skillrepository.findBySkillNameIgnoreCase(normalizedSkillName).orElseGet(() -> {
 			Skill newSkill = new Skill();
@@ -41,7 +41,7 @@ public class UserSkillServices {
 		UserSkill userskill = new UserSkill();
 		userskill.setUser(user);
 		userskill.setSkill(skill);
-		userskill.setType(skilltype);
+		userskill.setType(userskilldto.getType());
 
 		return userskillrepository.save(userskill);
 	}
@@ -78,8 +78,8 @@ public class UserSkillServices {
 		userskillrepository.deleteById(id);
 	}
 
-	public Optional<UserSkill> getUserSkills(Long userId) {
-		return userskillrepository.findById(userId);
+	public List<UserSkill> getUserSkills(Long userId) {
+		return userskillrepository.findByUserId(userId);
 	}
 
 }

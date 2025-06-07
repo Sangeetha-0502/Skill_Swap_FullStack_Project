@@ -1,8 +1,11 @@
 package com.example.skill_swap.skill_swap_project.Entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,11 +22,43 @@ public class User {
     private String email;
     private String password;
     private String bio;
+
+    private String linkedInUrl;
+    private String githubUrl;
+   
+
+    @ElementCollection
+    private List<String> certificateUrls = new ArrayList<>();
+    
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    public String getLinkedInUrl() {
+		return linkedInUrl;
+	}
+
+	public void setLinkedInUrl(String linkedInUrl) {
+		this.linkedInUrl = linkedInUrl;
+	}
+
+	public String getGithubUrl() {
+		return githubUrl;
+	}
+
+	public void setGithubUrl(String githubUrl) {
+		this.githubUrl = githubUrl;
+	}
+
+	public List<String> getCertificateUrls() {
+		return certificateUrls;
+	}
+
+	public void setCertificateUrls(List<String> certificateUrls) {
+		this.certificateUrls = certificateUrls;
+	}
+
+	private LocalDateTime createdAt = LocalDateTime.now();
 
     // Getters and setters
 

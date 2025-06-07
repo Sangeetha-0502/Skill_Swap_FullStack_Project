@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.skill_swap.skill_swap_project.Entities.UserSkill;
 import com.example.skill_swap.skill_swap_project.Enums.SkillType;
 import com.example.skill_swap.skill_swap_project.Services.UserSkillServices;
+import com.example.skill_swap.skill_swap_project.dtoClasses.UserSkillDto;
 
 @RestController
 @RequestMapping("/api/user-skills")
@@ -23,9 +25,9 @@ public class UserSkillController {
     private UserSkillServices userskillservice;
 
     @PostMapping("/add-user-skill")
-    public ResponseEntity<?> addUserSkill(@RequestParam Long userId, @RequestParam Long skillId, @RequestParam String skillName, @RequestParam SkillType type) {
+    public ResponseEntity<?> addUserSkill(@RequestBody UserSkillDto userskilldto) {
         try {
-            UserSkill userSkill = userskillservice.addUserSkill(userId, skillId, skillName, type);
+            UserSkill userSkill = userskillservice.addUserSkill(userskilldto);
             return ResponseEntity.ok(userSkill);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -72,5 +74,6 @@ public class UserSkillController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
 
 }

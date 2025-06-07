@@ -4,8 +4,15 @@ public class UserProfileUpdateRequest {
            private Long userId;
            private String email;
            private String bio;
+           private String name; 
            
            
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
 		public Long getUserId() {
 			return userId;
 		}
