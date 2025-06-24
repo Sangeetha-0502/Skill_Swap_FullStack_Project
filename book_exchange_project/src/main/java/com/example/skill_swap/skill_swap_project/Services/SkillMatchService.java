@@ -1,7 +1,11 @@
 package com.example.skill_swap.skill_swap_project.Services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,49 +15,111 @@ import com.example.skill_swap.skill_swap_project.Entities.UserSkill;
 import com.example.skill_swap.skill_swap_project.Enums.SkillType;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.UserSkillRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.MatchDto;
 
 @Service
 public class SkillMatchService {
 
     @Autowired
-    private UserSkillRepository userSkillRepository;
-
+    private UserSkillRepository userSkillRepo;
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository     userRepo;
 
-    public List<User> findMatchingUsers(Long userId) throws Exception {
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("User not found"));
+    public List<MatchDto> findMatchingUsers(Long userId) throws Exception {
 
-        // 1. Get skills the user wants to learn
-        List<UserSkill> learnSkills = userSkillRepository.findByUserAndType(currentUser, SkillType.LEARN);
+        User me = userRepo.findById(userId)
+                          .orElseThrow(() -> new Exception("User not found"));
 
-        
-        List<UserSkill> teachSkills = userSkillRepository.findByUserAndType(currentUser, SkillType.TEACH);
+        /* -------------------------------------------
+         * Fetch my teach + learn skills just once
+         * ------------------------------------------*/
+        List<UserSkill> myTeachUS = userSkillRepo.findByUserAndType(me, SkillType.TEACH);
+        List<UserSkill> myLearnUS = userSkillRepo.findByUserAndType(me, SkillType.LEARN);
 
-        List<User> matchingUsers = new ArrayList<>();
+        Set<Long> myTeachIds  = myTeachUS.stream()
+                                         .map(us -> us.getSkill().getId())
+                                         .collect(Collectors.toSet());
+        Set<Long> myLearnIds  = myLearnUS.stream()
+                                         .map(us -> us.getSkill().getId())
+                                         .collect(Collectors.toSet());
 
-        for (UserSkill learnSkill : learnSkills) {
-            // 3. Find other users who can teach the skill the current user wants to learn
-            List<UserSkill> usersWhoCanTeach = userSkillRepository.findBySkillAndType(learnSkill.getSkill(), SkillType.TEACH);
+        /* -------------------------------------------
+         * Pull all other users who teach ANY skill I
+         * want to learn – one DB hit
+         * ------------------------------------------*/
+        List<UserSkill> teachesWhatILearn =
+                userSkillRepo.findBySkillIdInAndType(myLearnIds, SkillType.TEACH);
 
-            for (UserSkill userWhoCanTeach : usersWhoCanTeach) {
-                User potentialMatch = userWhoCanTeach.getUser();
-                if (potentialMatch.equals(currentUser)) continue;
+            Map<Long, List<UserSkill>> cacheLearn = new HashMap<>();
+            List<MatchDto> matches = new ArrayList<>();
 
-                // 4. Check if that user also wants to learn something this user can teach
-                for (UserSkill teachSkill : teachSkills) {
-                    List<UserSkill> matchWantsToLearn = userSkillRepository.findByUserAndType(potentialMatch, SkillType.LEARN);
-                    for (UserSkill learnFromMatch : matchWantsToLearn) {
-                        if (learnFromMatch.getSkill().equals(teachSkill.getSkill())) {
-                            matchingUsers.add(potentialMatch);
-                            break;
-                        }
-                    }
+            for (UserSkill us : teachesWhatILearn) {
+                User cand = us.getUser();
+                if (cand.equals(me)) continue;
+
+                // Fetch candidate's LEARN list once and cache
+                List<UserSkill> candLearn = cacheLearn.computeIfAbsent(
+                    cand.getId(),
+                    id -> userSkillRepo.findByUserAndType(cand, SkillType.LEARN)
+                );
+
+                // Fetch candidate's TEACH list (this was the broken part)
+                List<UserSkill> candTeach = userSkillRepo.findByUserAndType(cand, SkillType.TEACH);
+
+                // Match 1: What they teach that I want to learn
+                List<String> theyTeachMe = candTeach.stream()
+                    .filter(u -> myLearnIds.contains(u.getSkill().getId()))
+                    .map(u -> u.getSkill().getSkillName())
+                    .toList();
+
+                // Match 2: What I teach that they want to learn
+                List<String> iTeachThem = candLearn.stream()
+                    .filter(u -> myTeachIds.contains(u.getSkill().getId()))
+                    .map(u -> u.getSkill().getSkillName())
+                    .toList();
+
+                if (!theyTeachMe.isEmpty() && !iTeachThem.isEmpty()) {
+                    matches.add(new MatchDto(
+                        cand.getId(),
+                        cand.getName(),
+                        iTeachThem,      // Skills I can teach them
+                        theyTeachMe      // Skills they can teach me
+                    ));
                 }
             }
-        }
 
-        return matchingUsers;
+            return matches;
     }
+
+    public List<MatchDto> searchUsersWithSkills(String namePart) {
+
+        return userRepo.findByNameContainingIgnoreCase(namePart)
+                       .stream()
+                       .map((User u) -> {                    // 👈 explicit type
+
+                           /* the user’s own TEACH skills */
+                           List<String> teaches = userSkillRepo
+                                   .findByUserAndType(u, SkillType.TEACH)
+                                   .stream()
+                                   .map(us -> us.getSkill().getSkillName())
+                                   .toList();
+
+                           /* the user’s own LEARN skills */
+                           List<String> learns = userSkillRepo
+                                   .findByUserAndType(u, SkillType.LEARN)
+                                   .stream()
+                                   .map(us -> us.getSkill().getSkillName())
+                                   .toList();
+
+                           /* build the card DTO */
+                           return new MatchDto(
+                                   u.getId(),
+                                   u.getName(),
+                                   teaches,   // matchingTeaches  → user’s teach skills
+                                   learns     // matchingLearns   → user’s learn skills
+                           );
+                       })
+                       .toList();   // .collect(Collectors.toList()) if < JDK‑16
+    }
+
 }

@@ -30,7 +30,7 @@ public class UserSkillServices {
 
 		User user = userrepository.findById(userskilldto.getUserId()).orElseThrow(() -> new Exception("User not found"));
 
-		String normalizedSkillName = userskilldto.getSkillName().toLowerCase();
+		String normalizedSkillName = userskilldto.getSkillName().trim().toLowerCase();
 
 		Skill skill = skillrepository.findBySkillNameIgnoreCase(normalizedSkillName).orElseGet(() -> {
 			Skill newSkill = new Skill();
@@ -46,19 +46,22 @@ public class UserSkillServices {
 		return userskillrepository.save(userskill);
 	}
 	
-	public UserSkill UpdateUserSkillName(Long userSkillId, Long skillId, String skillName) throws Exception {
-		
-		UserSkill userskill = userskillrepository.findById(userSkillId).orElseThrow(() -> new Exception ("user not found"));
-		Skill skill = skillrepository.findById(skillId).orElseGet(() -> {
-		           Skill newskill = new Skill();
-		           newskill.setSkillName(skillName);
-		           return skillrepository.save(newskill);
-		});
-		
-		userskill.setSkill(skill);
-		
-		return userskillrepository.save(userskill);
-		
+	public UserSkill updateUserSkillName(Long userSkillId, String skillName) throws Exception {
+
+	    UserSkill userSkill = userskillrepository
+	        .findById(userSkillId)
+	        .orElseThrow(() -> new Exception("User‑skill link not found"));
+
+	    Skill skill = skillrepository
+	        .findBySkillNameIgnoreCase(skillName.trim())
+	        .orElseGet(() -> {
+	            Skill s = new Skill();
+	            s.setSkillName(skillName.trim());
+	            return skillrepository.save(s);
+	        });
+
+	    userSkill.setSkill(skill);
+	    return userskillrepository.save(userSkill);
 	}
 	
 	public UserSkill updateUserSkillType

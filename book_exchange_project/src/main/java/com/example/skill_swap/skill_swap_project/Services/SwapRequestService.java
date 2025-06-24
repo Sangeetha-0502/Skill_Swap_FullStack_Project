@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.skill_swap.skill_swap_project.Entities.Skill;
@@ -14,10 +16,13 @@ import com.example.skill_swap.skill_swap_project.Enums.RequestStatus;
 import com.example.skill_swap.skill_swap_project.Repositories.SkillRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.SwapRequestRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.SwapRequestDto;
 
 @Service
 public class SwapRequestService {
-
+	
+	@Autowired
+	private JavaMailSender mailSender;
 	
 	 @Autowired
 	 private NotificationService notificationService;
@@ -31,22 +36,48 @@ public class SwapRequestService {
     @Autowired
     SkillRepository skillrepository;
 
-    public SwapRequest createRequest(Long senderId, Long receiverId, Long offeredSkillId, Long requestedSkillId) throws Exception {
-        User sender = userRepository.findById(senderId).orElseThrow(() -> new Exception("Sender not found"));
-        User receiver = userRepository.findById(receiverId).orElseThrow(() -> new Exception("Receiver not found"));
+    public SwapRequest createRequest(SwapRequestDto dto) throws Exception {
+    	User sender = userRepository.findById(dto.senderId()).orElseThrow(() -> new Exception("Sender not found"));
+        User receiver = userRepository.findById(dto.receiverId()).orElseThrow(() -> new Exception("Receiver not found"));
 
-        Skill offeredSkill = skillrepository.findById(offeredSkillId).orElseThrow(() -> new Exception("Offered Skill not found"));
-        Skill requestedSkill = skillrepository.findById(requestedSkillId).orElseThrow(() -> new Exception("Requested Skill not found"));
+        Skill requestedSkill = dto.requestedSkillId() != null ? 
+        		skillrepository.findById(dto.requestedSkillId()).orElse(null) : null;
 
-        SwapRequest request = new SwapRequest();
-        request.setSender(sender);
-        request.setReceiver(receiver);
-        request.setOfferedSkill(offeredSkill);
-        request.setRequestedSkill(requestedSkill);
-        request.setStatus(RequestStatus.Pending);
+        Skill offeredSkill = dto.offeredSkillId() != null ?
+        		skillrepository.findById(dto.offeredSkillId()).orElse(null) : null;
+
+        SwapRequest req = new SwapRequest();
+        req.setSender(sender);
+        req.setReceiver(receiver);
+        req.setRequestedSkill(requestedSkill);
+        req.setOfferedSkill(offeredSkill);
+        req.setNote(dto.note());
+        req.setStatus(RequestStatus.Pending);
+        System.out.println("saved successfully");
+        swaprequestrepository.save(req);
+       
+
+        // Optional Email Notification
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(receiver.getEmail());
+            message.setSubject("New Swap Request from " + sender.getName());
+            message.setText("""
+                    Hi %s,
+                    
+                    You’ve received a new Skill Swap request from %s.
+                    
+                    Message: %s
+                    
+                    Log in to your profile to accept or reject this request.
+                    """.formatted(receiver.getName(), sender.getName(), dto.note()));
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.out.println("Email failed: " + e.getMessage());
+        }
         
 
-        return swaprequestrepository.save(request);
+        return swaprequestrepository.save(req);
     }
 
     public SwapRequest updateStatus(Long requestId, RequestStatus status) throws Exception {

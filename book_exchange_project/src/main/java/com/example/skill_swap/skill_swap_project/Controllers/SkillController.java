@@ -1,5 +1,6 @@
 package com.example.skill_swap.skill_swap_project.Controllers;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.skill_swap.skill_swap_project.Entities.Skill;
@@ -29,6 +31,16 @@ public class SkillController {
 		Skill savedSkill = skillservice.addSkill(skill);
 		return ResponseEntity.ok(savedSkill);
 	}
+	
+	
+    @GetMapping("/get-skills-ids")
+    public ResponseEntity<Map<String, Long>> getSkillIds(
+            @RequestParam String requested,
+            @RequestParam String offered) {
+
+        Map<String, Long> ids = skillservice.getSkillIdsByNames(requested, offered);
+        return ResponseEntity.ok(ids);
+    }
 	
 	@GetMapping("/get-skills")
 	public ResponseEntity<?> getAllSkills(){

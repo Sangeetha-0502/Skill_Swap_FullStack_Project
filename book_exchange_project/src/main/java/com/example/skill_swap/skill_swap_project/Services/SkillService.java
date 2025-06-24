@@ -1,6 +1,8 @@
 package com.example.skill_swap.skill_swap_project.Services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,4 +40,18 @@ public class SkillService {
 	public void deleteSkill(Long id) {
         skillrepository.deleteById(id);
     }
+
+	   public Map<String, Long> getSkillIdsByNames(String offeredName, String neededName) {
+	        Skill requestedSkill = skillrepository.findBySkillNameIgnoreCase(offeredName)
+	                .orElseThrow(() -> new RuntimeException("Offered skill not found: " + offeredName));
+
+	        Skill offeredSkill = skillrepository.findBySkillNameIgnoreCase(neededName)
+	                .orElseThrow(() -> new RuntimeException("Needed skill not found: " + neededName));
+
+	        Map<String, Long> result = new HashMap<>();
+	        result.put("requestedSkillId", requestedSkill.getId());
+	        result.put("offeredSkillId", offeredSkill.getId());
+
+	        return result;
+	    }
 }

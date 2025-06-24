@@ -94,6 +94,7 @@ public class UserService {
 	    if (!Files.exists(uploadPath)) {
 	        Files.createDirectories(uploadPath);
 	    }
+	    
 
 	    // Create a unique file name like userId_filename.jpg
 	    String fileName = userId + "_" + file.getOriginalFilename();
@@ -108,6 +109,24 @@ public class UserService {
 	    userRepository.save(user);
 
 	    return profilePicUrl;
+	}
+
+	
+	public String deleteProfilePicture(Long userId) throws IOException {
+	    User user = userRepository.findById(userId)
+	            .orElseThrow(() -> new RuntimeException("User not found"));
+
+	    String profilePicPath = user.getProfilePictureUrl(); // This is like /uploads/1_xyz.jpg
+
+	    if (profilePicPath != null && !profilePicPath.isEmpty()) {
+	        Path filePath = Paths.get("." + profilePicPath); // Because it's a relative path
+	        Files.deleteIfExists(filePath); // Delete file from filesystem
+	    }
+
+	    user.setProfilePictureUrl(null); // Remove path from DB
+	    userRepository.save(user);
+
+	    return "Profile picture deleted successfully.";
 	}
 
     public String uploadCertificate(Long userId, MultipartFile file) throws IOException {
@@ -133,22 +152,26 @@ public class UserService {
         return certificateUrl;
     }
 
-    public User deleteCertificate(Long userId, String certificateUrl) throws Exception {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("User not found"));
+    public String deleteCertificateUrl(Long userId, String certificateUrl) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            List<String> urls = user.getCertificateUrls();
+            boolean removed = urls.removeIf(url -> url.equals(certificateUrl));
 
-        List<String> certificates = user.getCertificateUrls();
-        if (certificates.contains(certificateUrl)) {
-            certificates.remove(certificateUrl);
-            Path path = Paths.get("." + certificateUrl);
-            Files.deleteIfExists(path);
+            if (!removed) {
+                throw new RuntimeException("Certificate URL not found");
+            }
+
+            user.setCertificateUrls(urls);
             userRepository.save(user);
+            return "Certificate deleted successfully!";
         } else {
-            throw new Exception("Certificate not found");
+            throw new RuntimeException("User not found with ID: " + userId);
         }
-
-        return user;
     }
+
+
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
@@ -162,6 +185,7 @@ public class UserService {
     	userdata.setBio(user.getBio());
     	userdata.setLinkedInUrl(user.getLinkedInUrl());
     	userdata.setGithubUrl(user.getGithubUrl());
+    	userdata.setProfilePictureUrl(user.getProfilePictureUrl());
     	userdata.setCertificateUrls(user.getCertificateUrls());
     	
     	return userdata;

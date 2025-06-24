@@ -111,6 +111,19 @@ public class UserController {
 	                             .body("Failed to upload profile picture: " + e.getMessage());
 	    }
 	}
+	
+	
+	@DeleteMapping("/delete-profile-picture/{userId}")
+	public ResponseEntity<String> deleteProfilePicture(@PathVariable Long userId) {
+	    try {
+	        String message = userservice.deleteProfilePicture(userId);
+	        return ResponseEntity.ok(message);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error deleting profile picture: " + e.getMessage());
+	    }
+	}
+
 	@PutMapping("/add-linkedin/{userId}")
 	public ResponseEntity<User> addLinkedIn(@PathVariable Long userId, @RequestParam String linkedInUrl) {
 	    try {
@@ -130,7 +143,8 @@ public class UserController {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 	    }
 	}
-	@PostMapping("/{userId}/upload-certificate")
+	
+	@PostMapping("/upload-certificate/{userId}")
     public ResponseEntity<String> uploadCertificate(@PathVariable Long userId,
                                                     @RequestParam("file") MultipartFile file) {
         try {
@@ -142,11 +156,11 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{userId}/delete-certificate")
+    @DeleteMapping("delete-certificate/{userId}")
     public ResponseEntity<String> deleteCertificate(@PathVariable Long userId,
                                                     @RequestParam String certificateUrl) {
         try {
-            userservice.deleteCertificate(userId, certificateUrl);
+            userservice.deleteCertificateUrl(userId, certificateUrl);
             return ResponseEntity.ok("Certificate deleted successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

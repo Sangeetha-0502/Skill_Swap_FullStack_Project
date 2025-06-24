@@ -2,6 +2,7 @@ package com.example.skill_swap.skill_swap_project.Entities;
 
 import com.example.skill_swap.skill_swap_project.Enums.RequestStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,6 +29,9 @@ public class SwapRequest {
 
     @ManyToOne
     private Skill offeredSkill;
+    
+    @Column(length = 1000)
+    private String note;
 
     @Enumerated(EnumType.STRING)
     private RequestStatus status = RequestStatus.Pending;
@@ -73,6 +77,10 @@ public class SwapRequest {
     public void setOfferedSkill(Skill offeredSkill) {
         this.offeredSkill = offeredSkill;
     }
+    
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
+
 
     public RequestStatus getStatus() {
         return status;
@@ -81,4 +89,6 @@ public class SwapRequest {
     public void setStatus(RequestStatus status) {
         this.status = status;
     }
+    
+    
 }

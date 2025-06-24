@@ -34,10 +34,10 @@ public class UserSkillController {
         }
     }
     
-    @PutMapping("/update-user-skill-name/")
-    public ResponseEntity<?> updateUserSkillName(@RequestParam Long userSkillId, @RequestParam Long skillId, @RequestParam String skillName){
+    @PutMapping("/update-user-skill-name/{userSkillId}")
+    public ResponseEntity<?> updateUserSkillName(@PathVariable Long userSkillId,  @RequestParam String skillName){
     	try {
-			UserSkill updatedUserSkill = userskillservice.UpdateUserSkillName(userSkillId, skillId, skillName);
+			UserSkill updatedUserSkill = userskillservice.updateUserSkillName(userSkillId, skillName);
 			return ResponseEntity.ok(updatedUserSkill);
 		} catch (Exception e) {
 			 return ResponseEntity.status(401).body("user not found");
@@ -65,8 +65,7 @@ public class UserSkillController {
     
     @DeleteMapping("/delete-user-skill/{id}")
     public ResponseEntity<?> deleteUserSkill(@PathVariable Long id) {
-    
-
+ 
         try {
             userskillservice.deleteUserSkill(id);
             return ResponseEntity.ok("UserSkill deleted");
