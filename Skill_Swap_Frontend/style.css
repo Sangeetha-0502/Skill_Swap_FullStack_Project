@@ -1,0 +1,176 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f3f6f9;
+
+  /* ⭐️ Center the container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  width: 60%;
+  /* 👈 Shrink container width */
+  height: 400px;
+  margin: 5% auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+
+}
+
+.left-panel,
+.right-panel {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* 👈 Align content to the left */
+  justify-content: flex-start;
+  gap: 10px;
+  /* 👈 Reduce spacing between elements */
+}
+
+.left-panel {
+  background-color: #00b8b8;
+  color: white;
+
+}
+
+.right-panel {
+  background-color: white;
+}
+
+.logo {
+  width: 90px;
+}
+
+.left-panel button {
+  color: white;
+  background-color: #00b8b8;
+  margin-top: 10px;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 1rem;
+  border: 2px solid white;
+}
+
+.right-panel button {
+  color: white;
+  background-color: #00b8b8;
+  margin-top: 10px;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 1rem;
+  border: none;
+}
+
+.right-panel input {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.right-panel a {
+  font-size: 0.85rem;
+  color: #00b8b8;
+  text-decoration: none;
+}
+
+.left-panel h2,
+.left-panel p,
+.left-panel button {
+  margin: 10px;
+}
+
+.welcome-text {
+  font-size: 2rem;
+  /* you can go bigger if you like */
+  font-weight: bold;
+
+}
+
+.right-panel input {
+  width: 100%;
+  padding: 8px 4px;
+  font-size: 1rem;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  background-color: transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 10px;
+}
+
+.right-panel input:focus,
+.right-panel select:focus {
+  border-bottom-color: #00b8b8;
+}
+
+.inline-input {
+  width: 70%;
+  font: inherit;
+  padding: 2px;
+}
+
+.edit-btn i {
+  color: #666;
+}
+
+.edit-btn:hover i {
+  color: #000;
+}
+
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+  flex: 1;
+  padding-right: 40px;
+  /* space for the icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    width: 90%;
+    /* ✅ Make container use more width */
+    height: auto;
+    /* ✅ Let it grow based on content */
+    margin: 20px auto;
+  }
+
+  .left-panel,
+  .right-panel {
+    align-items: center;
+    /* ✅ Center content in both panels */
+    text-align: center;
+    padding: 20px;
+  }
+
+  .left-panel button,
+  .right-panel button {
+    width: 100%;
+  }
+}

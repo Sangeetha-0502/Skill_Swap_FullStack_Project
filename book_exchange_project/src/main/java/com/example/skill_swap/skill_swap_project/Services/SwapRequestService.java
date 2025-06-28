@@ -1,6 +1,7 @@
 package com.example.skill_swap.skill_swap_project.Services;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import com.example.skill_swap.skill_swap_project.Enums.RequestStatus;
 import com.example.skill_swap.skill_swap_project.Repositories.SkillRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.SwapRequestRepository;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.NotificationDto;
 import com.example.skill_swap.skill_swap_project.dtoClasses.SwapRequestDto;
 
 @Service
@@ -80,28 +82,97 @@ public class SwapRequestService {
         return swaprequestrepository.save(req);
     }
 
-    public SwapRequest updateStatus(Long requestId, RequestStatus status) throws Exception {
+    public SwapRequest updateStatus(Long requestId, RequestStatus status) {
         SwapRequest request = swaprequestrepository.findById(requestId)
-            .orElseThrow(() -> new Exception("Request not found"));
-        
+            .orElseThrow(() -> new RuntimeException("Request not found"));
+
         request.setStatus(status);
         
-        if(status == RequestStatus.Accepted) {
-            
-            notificationService.sendNotification(request.getSender().getId(), 
-                "Your swap request has been accepted by " + request.getReceiver().getName());
-            notificationService.sendNotification(request.getReceiver().getId(), 
-                "You accepted a swap request from " + request.getSender().getName());
-            
-        } else if(status == RequestStatus.Rejected) {
-         
-            notificationService.sendNotification(request.getSender().getId(), 
-                "Your swap request has been rejected by " + request.getReceiver().getName());
-        }
         
-        return swaprequestrepository.save(request);
+       
+            sendAcceptanceEmail(request);
+        
+        return  swaprequestrepository.save(request);
     }
     
+    private void sendAcceptanceEmail(SwapRequest request) {
+        String senderEmail = request.getSender().getEmail(); 
+        String senderName = request.getSender().getName();
+        String receiverName = request.getReceiver().getName();
+        String offeredSkill = request.getOfferedSkill().getSkillName();
+        String requestedSkill = request.getRequestedSkill().getSkillName();
+
+        String subject;
+        String body;
+
+        if (request.getStatus() == RequestStatus.Accepted) {
+            subject = "🎉 Your Skill Swap Request Was Accepted!";
+            body = String.format(
+                "Hi %s,\n\n%s has accepted your skill swap request!\n\n" +
+                "🛠️ Offered Skill: %s\n" +
+                "🎯 Requested Skill: %s\n\n" +
+                "You're all set to connect and start swapping!\n\n" +
+                "Regards,\nSkill Swap Team",
+                senderName, receiverName, offeredSkill, requestedSkill
+            );
+        } else if (request.getStatus() == RequestStatus.Rejected) {
+            subject = "Your Skill Swap Request Was Rejected!";
+            body = String.format(
+                "Hi %s,\n\n%s has rejected your skill swap request.\n\n" +
+                "🛠️ Offered Skill: %s\n" +
+                "🎯 Requested Skill: %s\n\n" +
+                "We're sorry for the disappointment. Please update your profile and try again with another user.\n\n" +
+                "Regards,\nSkill Swap Team",
+                senderName, receiverName, offeredSkill, requestedSkill
+            );
+        } else {
+            // if it's still pending or unknown, don't send an email
+            return;
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(senderEmail);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.out.println("Email sending failed: " + e.getMessage());
+        }
+    }
+
+
+
+        public List<NotificationDto> getAllNotificationsForUser(Long userId) {
+            List<SwapRequest> swapRequests = swaprequestrepository.findAllByUserInvolved(userId);
+            List<NotificationDto> notificationList = new ArrayList<>();
+
+            for (SwapRequest sr : swapRequests) {
+            	NotificationDto dto = new NotificationDto();
+
+                dto.setRequestId(sr.getId());
+                dto.setReceiverName(sr.getReceiver().getName());
+                dto.setSenderName(sr.getSender().getName());
+                dto.setOfferedSkill(sr.getOfferedSkill().getSkillName());
+                dto.setRequestedSkill(sr.getRequestedSkill().getSkillName());
+                dto.setNote(sr.getNote());
+                dto.setStatus(sr.getStatus().toString()); 
+                dto.setSenderId(sr.getSender().getId());       // ✅
+                dto.setReceiverId(sr.getReceiver().getId()); 
+                
+                if (sr.getSender().getId().equals(userId)) {
+                    dto.setUserRole("sender");
+                } else {
+                    dto.setUserRole("receiver");
+                }
+// enum to string
+
+                notificationList.add(dto);
+            }
+
+            return notificationList;
+        }
+  
     public Optional<SwapRequest> getRequestById(Long requestId) {
         return swaprequestrepository.findById(requestId);
     }
@@ -120,6 +191,8 @@ public class SwapRequestService {
     public List<SwapRequest> getReceivedRequests(Long userId) {
         return swaprequestrepository.findByReceiverId(userId);
     }
+
+	
 
 }
 

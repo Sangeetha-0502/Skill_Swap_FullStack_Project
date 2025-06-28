@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skill Swap – Find Match</title>
+
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="match.css">
+</head>
+
+<body>
+    <header>Skill Swap – Find Match</header>
+
+    <div class="container">
+        <!-- Grid that will be filled by JS -->
+        <input type="text" id="nameSearchInput" placeholder="Search users by name..." oninput="searchUsersByName()" />
+
+        <div id="matchGrid" class="match-grid"></div>
+        <p id="emptyMsg" class="empty-msg" style="display:none;">No perfect matches yet 😔</p>
+    </div>
+
+    <div id="forNoteInput"></div>
+
+    <!-- Link to external JavaScript -->
+    <script src="match.js"></script>
+</body>
+
+</html>

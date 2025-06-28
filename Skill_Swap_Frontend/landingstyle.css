@@ -1,0 +1,148 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3f6f9;
+}
+
+.center-heading {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.profile-icon img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.landing-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 80px);
+  text-align: center;
+}
+
+.landing-content h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.landing-content p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.landing-content button {
+  background-color: #00b8b8;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.landing-content button:hover {
+  background-color: #009191;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.left-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification-icon i {
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+}
+
+.notification-icon i:hover {
+  color: #007BFF;
+}
+
+.profile-icon img {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.center-heading {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 768px) {
+  navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+  }
+
+  .center-heading {
+    position: static;
+    transform: none;
+    font-size: 1.3rem;
+    text-align: center;
+    flex: 1;
+  }
+
+  .left-icons {
+    gap: 15px;
+  }
+
+
+  .landing-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .landing-content p {
+    font-size: 1rem;
+  }
+
+  .landing-content button {
+    width: 80%;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .profile-icon img,
+  .notification-icon i {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+
+  .landing-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .landing-content p {
+    font-size: 0.95rem;
+  }
+
+  .landing-content button {
+    font-size: 0.95rem;
+    padding: 8px 20px;
+  }
+}

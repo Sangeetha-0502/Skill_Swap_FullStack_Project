@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.skill_swap.skill_swap_project.Entities.User;
 import com.example.skill_swap.skill_swap_project.Services.UserService;
 import com.example.skill_swap.skill_swap_project.dtoClasses.LoginRequest;
+import com.example.skill_swap.skill_swap_project.dtoClasses.PasswordDto;
 import com.example.skill_swap.skill_swap_project.dtoClasses.UserData;
 import com.example.skill_swap.skill_swap_project.dtoClasses.UserProfileUpdateRequest;
 
@@ -52,19 +53,31 @@ public class UserController {
 		}
 	}
 	
-//	@PostMapping("/add-bio/{userId}")
-//	public ResponseEntity<?> addBio(@PathVariable Long userId, @RequestParam String Bio){
-//		User savedUser;
-//		try {
-//			savedUser = userservice.addBio(userId, Bio);
-//			return ResponseEntity.ok(savedUser);
-//			
-//		} catch (Exception e) {
-//			return ResponseEntity.badRequest().body(e.getMessage());
-//		}
-//	}
+	@PostMapping("/forgot-password")
+	public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+		try {
+			String  msg = userservice.forgotPassword(email);
+			return ResponseEntity.ok(msg);
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		
+	}
 	
-	
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<String> resetPassword(@RequestBody PasswordDto passwordDto) {
+	    try {
+	    	userservice.resetPassword(passwordDto);  // service method call
+	        return ResponseEntity.ok("Password reset successfully!");
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());  // like token expired
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).body("Something went wrong!");
+	    }
+	}
+
 	
 	@PostMapping("/user-login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <link rel="stylesheet" href="userSKillStyle.css">
+</head>
+<body>
+      <div class="skill-form-container">
+    <h2>Add Your Skill</h2>
+    <label for="skillType">Skill Type</label>
+    <select id="skillType">
+      <option value="">-- Select --</option>
+      <option value="TEACH">Teach</option>
+      <option value="LEARN">Learn</option>
+    </select>
+
+    <label for="skillName">Skill Name</label>
+    <input type="text" id="skillName" placeholder="e.g., Java, Photography" />
+
+    <button onclick="addSkill()">Add Skill</button>
+
+    <script src="userSkill.js"></script>
+  </div>
+</body>
+</html>

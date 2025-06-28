@@ -7,9 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan(basePackages = "com.example.skill_swap.skill_swap_project")
 public class SkillSwapProjectApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(SkillSwapProjectApplication.class, args);
 	}
-
 }

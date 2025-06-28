@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.skill_swap.skill_swap_project.Entities.SwapRequest;
 import com.example.skill_swap.skill_swap_project.Enums.RequestStatus;
 import com.example.skill_swap.skill_swap_project.Services.SwapRequestService;
+import com.example.skill_swap.skill_swap_project.dtoClasses.NotificationDto;
 import com.example.skill_swap.skill_swap_project.dtoClasses.SwapRequestDto;
 
 @RestController
@@ -44,6 +45,15 @@ public class SwapRequestController {
         return requestService.updateStatus(id, status);
     }
 
+
+
+	@GetMapping("/get-notifications/{userId}")
+	public ResponseEntity<List<NotificationDto>> getNotifications(@PathVariable Long userId) {
+		List<NotificationDto> notifications = requestService.getAllNotificationsForUser(userId);
+		return ResponseEntity.ok(notifications);
+	}
+    
+
     /* Get single */
     @GetMapping("/get-request-by-id/{id}")
     public SwapRequest getRequestById(@PathVariable Long id) throws Exception {
@@ -68,4 +78,5 @@ public class SwapRequestController {
     public ResponseEntity<List<SwapRequest>> getReceivedRequests(@PathVariable Long userId) {
         return ResponseEntity.ok(requestService.getReceivedRequests(userId));
     }
+   
 }

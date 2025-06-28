@@ -27,7 +27,6 @@ public class NotificationService {
         notification.setRecipient(user);
         notification.setMessage(message);
         notification.setTimestamp(LocalDateTime.now());
-
         notificationRepository.save(notification);
     }
 

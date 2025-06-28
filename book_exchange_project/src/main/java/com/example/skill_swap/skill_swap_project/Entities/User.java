@@ -25,9 +25,36 @@ public class User {
 
     private String linkedInUrl;
     private String githubUrl;
+    
+    private String resetToken;
+    private LocalDateTime tokenExpiry;
    
 
-    @ElementCollection
+    public String getResetToken() {
+		return resetToken;
+	}
+
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+
+	public LocalDateTime getTokenExpiry() {
+		return tokenExpiry;
+	}
+
+	public void setTokenExpiry(LocalDateTime tokenExpiry) {
+		this.tokenExpiry = tokenExpiry;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	@ElementCollection
     private List<String> certificateUrls = new ArrayList<>();
     
     @Column(name = "profile_picture_url")

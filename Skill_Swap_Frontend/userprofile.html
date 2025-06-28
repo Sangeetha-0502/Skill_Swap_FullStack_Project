@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="userprofile.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>User Profile</h1>
+
+    <!-- Profile Picture -->
+    <!-- Profile Picture -->
+    <div class="profile-pic-section" id="profilePicSection">
+      <img id="profilePic" src="" alt="User Image" style="display: none;" />
+      <input type="file" id="profilePicInput" style="display: none;" accept="image/*" onchange="uploadProfilePic()" />
+
+      <!-- Flex container for both buttons -->
+      <div class="pic-button-row">
+        <button class="upload-btn" onclick="document.getElementById('profilePicInput').click()">Add Profile
+          Picture</button>
+        <button class="delete-btn" onclick="deleteProfilePic()">Delete Profile Picture</button>
+      </div>
+    </div>
+
+
+    <!-- Basic Info -->
+    <div class="info-row">
+      <span id="username">Your name comes here</span>
+      <span id="nameInputWrapper" style="display: none; margin-left: 10px;">
+        <input type="text" id="nameInput" placeholder="Enter new name">
+        <button onclick="submitProfileUpdate()">Submit</button>
+      </span>
+      <button onclick="toggleNameInput()">Edit</button>
+    </div>
+
+
+    <div class="info-row">
+      <span id="email">Email goes here...</span>
+
+      <span id="emailInputWrapper" style="display: none; margin-left: 10px;">
+        <input type="text" id="emailInput" placeholder="Enter your email">
+        <button onclick="submitProfileUpdate()">Submit</button>
+      </span>
+
+      <button onclick="toggleEmailInput()">Edit</button>
+    </div>
+
+
+    <div class="info-row">
+      <span id="bio">Bio goes here...</span>
+      <span id="bioInputWrapper" style="display: none; margin-left: 10px;">
+        <input type="text" id="bioInput" placeholder="Enter your bio">
+        <button onclick="submitProfileUpdate()">Submit</button>
+      </span>
+
+      <button onclick="toggleBioInput()">Edit</button>
+    </div>
+
+
+    <!-- Social Links -->
+    <div class="info-row">
+      <span>LinkedIn:</span>
+      <a id="linkedInLink" href="#" target="_blank">🔗</a>
+
+      <span id="linkedInInputWrapper" style="display: none; margin-left: 10px;">
+        <input type="text" id="linkedInInput" placeholder="Enter LinkedIn URL">
+        <button onclick="submitLinkedIn()">Submit</button>
+      </span>
+      <button onclick="toggleLinkedInInput()">Edit</button>
+    </div>
+
+    <div class="info-row">
+      <span>GitHub:</span>
+      <a id="githubLink" href="#" target="_blank">🔗</a>
+      <span id="githubInputWrapper" style="display: none; margin-left: 10px;">
+        <input type="text" id="githubInput" placeholder="Enter github URL">
+        <button onclick="submitGithub()">Submit</button>
+      </span>
+      <button onclick="toggleGithubInput()">Edit</button>
+    </div>
+    <h2>Skills Registered</h2>
+
+    <div id="skillsTableContainer" style="display: none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill Name</th>
+            <th>Type</th>
+            <th id="actionId">Action</th>
+          </tr>
+        </thead>
+        <tbody id="skillsTable">
+          <!-- rows will be injected dynamically -->
+        </tbody>
+
+
+      </table>
+    </div>
+
+
+    <!-- Add skills -->
+    <button class="add-skill-button" onclick="location.href='userSkill.html'">Add Skill</button>
+
+    <!-- Certificates Section -->
+    <h2>Certificates</h2>
+    <div id="certificates" class="cert-grid"></div>
+
+    <div class="upload-certificate-section">
+      <input type="file" id="certificateInput" accept="image/*" style="display: none;" onchange="uploadCertificate()" />
+      <button onclick="document.getElementById('certificateInput').click()">Upload Certificate</button>
+    </div>
+    <script src="userprofile.js"></script>
+</body>
+
+</html>

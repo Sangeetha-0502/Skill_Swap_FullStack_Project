@@ -5,21 +5,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.skill_swap.skill_swap_project.Entities.User;
 import com.example.skill_swap.skill_swap_project.Repositories.UserRepository;
+import com.example.skill_swap.skill_swap_project.dtoClasses.PasswordDto;
 import com.example.skill_swap.skill_swap_project.dtoClasses.UserData;
 
 
 
 @Service
 public class UserService {
+	
+	@Autowired
+	private JavaMailSender mailSender;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -190,8 +199,58 @@ public class UserService {
     	
     	return userdata;
     }
+    
+    public void resetPassword(PasswordDto passwordDto) throws Exception {
+        String token = passwordDto.getToken();
+        String newPassword = passwordDto.getNewPassword();
 
+        Optional<User> optionalUser = userRepository.findByResetToken(token);
 
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
 
+            if (user.getTokenExpiry() == null || user.getTokenExpiry().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Token has expired");
+            }
+
+            // Use password encoder to hash password
+            user.setPassword(newPassword);
+
+            // Clear reset token and expiry
+            user.setResetToken(null);
+            user.setTokenExpiry(null);
+
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Invalid token");
+        }
+    }
+
+    
+    public String forgotPassword(String email) throws Exception {
+    	Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setTokenExpiry(LocalDateTime.now().plusMinutes(30));
+            userRepository.save(user);
+
+            String link = "http://localhost:5500/reset-password.html?token=" + token;
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(user.getEmail());
+            message.setSubject("Reset your Skill Swap Password");
+            message.setText("Click the link to reset: " + link);
+
+            mailSender.send(message);
+            return "Mail sent to your registerd mail id";
+            
+        }
+        else {
+        	throw new RuntimeException("User not found");
+        }
+    }
 
 }

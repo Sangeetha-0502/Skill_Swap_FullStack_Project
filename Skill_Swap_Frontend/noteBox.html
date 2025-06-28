@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Note Request Box</title>
+    <link rel="stylesheet" href="noteBox.css" />
+</head>
+
+<body>
+    <div class="modal show">
+        <div class="modal-content">
+            <h3>Send a Note (Optional)</h3>
+            <!-- <input type="text" id="noteInput"  /> -->
+            <textarea name="" id="noteInput" placeholder="Enter your note here"></textarea>
+
+            <div class="skillInput">
+                <input type="text" id="requestedSkill" placeholder="Requesting skill">
+                <input type="text" id="offeredSkill" placeholder="Offering skill">
+            </div>
+
+            <div class="button-group">
+                <button id="submitNoteBtn">Submit Note & Send Request</button>
+                <button id="skipBtn">Skip & Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="noteBox.js"></script>
+</body>
+
+</html>

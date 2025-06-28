@@ -9,11 +9,17 @@ import org.springframework.stereotype.Repository;
 import com.example.skill_swap.skill_swap_project.Entities.User;
 import com.example.skill_swap.skill_swap_project.dtoClasses.MatchDto;
 
-
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	Optional<User>  findByEmail(String email);
+	 
+	
+	
+	Optional<User> findByEmail(String email);
 
 	Collection<User> findByNameContainingIgnoreCase(String namePart);
-   
+	
+	
+
+	Optional<User> findByResetToken(String token);
+
 }
