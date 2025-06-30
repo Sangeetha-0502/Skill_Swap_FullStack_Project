@@ -94,33 +94,3 @@ button {
 button:hover {
     background-color: #0056b3;
 }
-
-/* 🎯 Responsive goodness */
-/* @media (max-width: 600px) {
-  .modal-content {
-    width: 90%;
-    height: auto;
-    padding: 16px;
-  }
-
-  textarea#noteInput {
-    width: 100%;
-  }
-
-  .skillInput {
-    width: 100%;
-  }
-
-  .skillInput input {
-    width: 100%;
-  }
-
-  .button-group {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .button-group button {
-    width: 100%;
-  }
-} */
