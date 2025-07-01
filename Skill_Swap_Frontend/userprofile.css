@@ -217,21 +217,45 @@ button {
     font-size: 0.95rem;
   }
 
-  table {
-    font-size: 0.8rem;
-    word-wrap: break-word;
+  /* ✅ Profile Picture Centering */
+  .profile-pic-section img {
     display: block;
+    margin: 0 auto;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  /* ✅ Full Width Table */
+  table {
+    font-size: 0.85rem;
+    width: 100%;
+    display: table;
     overflow-x: auto;
   }
 
   table th,
   table td {
-    padding: 6px;
+    padding: 8px;
   }
 
-  .cert-card {
+  /* ✅ Certificate Section Uniform and Responsive */
+  .cert-item {
     width: 100%;
     max-width: 300px;
+    margin: 10px auto;
+  }
+
+  .certificate-img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+  }
+
+  .cert-grid {
+    justify-content: center;
   }
 
   .upload-btn,
@@ -253,10 +277,5 @@ button {
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
-  }
-
-  .certificate-img {
-    width: 100%;
-    height: auto;
   }
 }

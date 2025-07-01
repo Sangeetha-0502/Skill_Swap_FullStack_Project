@@ -94,3 +94,39 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 90%;
+        height: auto;
+        padding: 20px 15px;
+        border-radius: 10px;
+    }
+
+    textarea#noteInput {
+        width: 100%;
+        height: 80px;
+        font-size: 14px;
+    }
+
+    .skillInput {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .skillInput input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .button-group button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
