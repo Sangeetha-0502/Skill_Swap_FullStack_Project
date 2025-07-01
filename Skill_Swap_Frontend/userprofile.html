@@ -114,6 +114,14 @@
       <input type="file" id="certificateInput" accept="image/*" style="display: none;" onchange="uploadCertificate()" />
       <button onclick="document.getElementById('certificateInput').click()">Upload Certificate</button>
     </div>
+
+
+    <!-- Modal for Fullscreen Image -->
+    <div id="imageModal" class="modal">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img class="modal-content" id="modalImage">
+    </div>
+
     <script src="userprofile.js"></script>
 </body>
 

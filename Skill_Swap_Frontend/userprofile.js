@@ -1,4 +1,4 @@
-// ✅ Define these globally (at the top)
+
 const urlParams = new URLSearchParams(window.location.search);
 const viewedUserId = urlParams.get("userId") || localStorage.getItem("userId");
 const isOwnProfile = viewedUserId === localStorage.getItem("userId");
@@ -12,7 +12,7 @@ window.onload = () => {
   loadUserProfile(viewedUserId);
 };
 
-// ✅ Profile loading function (same as before)
+// ✅ Profile loading function (
 function loadUserProfile(userId) {
   fetch(`http://localhost:8080/api/user/user-data/${userId}/`)
     .then(res => res.json())
@@ -83,7 +83,7 @@ function loadUserProfile(userId) {
     });
 }
 
-// ✅ Now safe to use isOwnProfile here
+//to hide the edit button in other user profile
 if (!isOwnProfile) {
   document.querySelectorAll("button").forEach(btn => {
     const text = btn.textContent.toLowerCase();
@@ -122,7 +122,7 @@ function renderSkills(skills) {
   }
 
   tableWrap.style.display = "block";
-  tbody.innerHTML = "";           // clear old rows
+  tbody.innerHTML = "";
 
   skills.forEach(us => {
     const row = document.createElement("tr");
@@ -162,10 +162,6 @@ function renderSkills(skills) {
       delBtn.onclick = () => deleteSkill(us.id);
       delTd.appendChild(delBtn);
       row.appendChild(delTd);
-
-    }
-
-    if (isOwnProfile) {
       const editBtn2 = document.createElement("button");
       editBtn2.className = "edit-btn";
       editBtn2.dataset.userSkillId = us.id;
@@ -175,9 +171,8 @@ function renderSkills(skills) {
       editBtn2.style.cursor = "pointer";
       editBtn2.innerHTML = '<i class="fas fa-pencil-alt" style="color:#555;"></i>';
       typeTd.appendChild(editBtn2);
+
     }
-
-
 
     tbody.appendChild(row);
   });
@@ -526,6 +521,7 @@ function uploadCertificate() {
       certImg.src = "http://localhost:8080" + url + "?t=" + new Date().getTime();
       certImg.alt = "Certificate";
       certImg.classList.add("certificate-img");
+      certImg.onclick = () => openModal(certImg.src);
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "Delete";
@@ -544,6 +540,18 @@ function uploadCertificate() {
       console.error("Upload failed", err);
       alert("Certificate upload failed!");
     });
+}
+
+//function to open the image 
+function openModal(imgSrc) {
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  modal.style.display = "flex";
+  modalImg.src = imgSrc;
+}
+
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
 }
 
 function deleteCertificate(certificateUrl) {
