@@ -166,6 +166,16 @@
                 const content = input.value.trim();
                 if (!content) return;
 
+                // Show the message immediately in chat
+                const div = document.createElement("div");
+                div.classList.add("message", "sent");
+                div.textContent = content;
+                chatBox.appendChild(div);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                input.value = "";
+
+                // Now send to backend
                 fetch("http://localhost:8080/api/chat/send", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -173,14 +183,14 @@
                 })
                     .then(response => {
                         if (!response.ok) throw new Error("Send failed");
-                        input.value = "";
-                        loadMessages();
+                        loadMessages(); // Refresh from server in case there are changes
                     })
                     .catch(err => {
                         alert("Message send failed!");
                         console.error(err);
                     });
             }
+
 
             sendBtn.addEventListener("click", sendMessage);
             input.addEventListener("keypress", (e) => {
