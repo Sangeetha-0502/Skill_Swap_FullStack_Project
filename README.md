@@ -32,12 +32,17 @@
 
 ## 📸 Screenshots *(Optional: Add screenshots here)*  
 ### 🔐 Login Page
-![Registration Page](screenshots/registrationPage.png)
+![Registration Page](screenshots/registerPage.png)
+### Regitration/Sign Up Page
 ![Login Page](screenshots/loginPage.png)
+### Landing Page
 ![Landing Page](screenshots/landingPage.png)
-![Matching users](screenshots/matchingUsers.png)
-![Chat Box](screenshots/chatPage..png)
-![Notification Page](screenshots/notificationPage)
+### Matching users Page
+![Matching users](screenshots/MatchingUsers.png)
+### Chat Box
+![Chat Box](screenshots/chatPage.png)
+### Notification Page
+![Notification Page](screenshots/notificationsPage.png)
 
 ## 🧠 What I Learned
 - Structuring and managing a **modular Spring Boot** application
@@ -60,8 +65,8 @@
 
 ---
 
-## 🤝 Let’s Connect
-Built with ❤️ by **P. Sangeetha**  
-🔗 [LinkedIn](#) | 🔗 [GitHub](#) *(Add your profile links here)*
+## 🤝 Let’s Connect to build more!
+ P.Sangeetha
+🔗 [LinkedIn](https://www.linkedin.com/in/sangeetha05/) | 🔗 [GitHub](https://github.com/Sangeetha-0502) 
 
 
