@@ -25,3 +25,4 @@ Explanation:
 For the cell mat[0][0] which is 1, its adjacent cells (mat[0][1] and mat[1][0]) are modified to 0.
 For the cell mat[1][1] which is 1, its adjacent cells (mat[0][1], mat[1][0], mat[1][2], and mat[2][1]) are modified to 0.
 The modification is not applied to the cell mat[2][2] as it doesn't have all four adjacent cells.
+/target/

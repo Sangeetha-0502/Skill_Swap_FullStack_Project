@@ -6,12 +6,12 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> 
 	</parent>
-	<groupId>com.example.book_exchange</groupId>
-	<artifactId>book_exchange_project</artifactId>
+	<groupId>com.example.skill_swap</groupId>
+	<artifactId>Skill_Swap_Backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>book_exchange_project</name>
+	<name>Skill_Swap_Backend</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
