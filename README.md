@@ -32,7 +32,12 @@
 
 ## 📸 Screenshots *(Optional: Add screenshots here)*  
 ### 🔐 Login Page
+![Registration Page](screenshots/registrationPage.png)
 ![Login Page](screenshots/loginPage.png)
+![Landing Page](screenshots/landingPage.png)
+![Matching users](screenshots/matchingUsers.png)
+![Chat Box](screenshots/chatPage..png)
+![Notification Page](screenshots/notificationPage)
 
 ## 🧠 What I Learned
 - Structuring and managing a **modular Spring Boot** application
