@@ -23,7 +23,7 @@ public class SwapRequest {
 
     @ManyToOne
     private User receiver;
-
+    
     @ManyToOne
     private Skill requestedSkill;
 
