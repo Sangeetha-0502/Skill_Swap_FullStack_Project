@@ -1,18 +1,20 @@
 # Ignore secret and config files
-credentials.properties
+# Ignore secrets
+Skill_Swap_Backend/src/main/resources/credentials.properties
 .env
 *.key
 *.pem
 
-# Ignore compiled files
+# Ignore build output
 /target/
-/build/
 
-# Ignore IDE settings
-*.iml
-.idea/
-.vscode/
+/build/
 
 # Ignore logs
 *.log
+
+# Ignore IDE/project settings
+*.iml
+.idea/
+.vscode/
 
