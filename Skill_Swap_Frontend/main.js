@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
   let userName = localStorage.getItem("userName") || "there";
   const greetingElement = document.getElementById("greeting");
   let userProfilePic = localStorage.getItem("userProfilePic");
@@ -18,7 +19,7 @@ function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  fetch("http://localhost:8080/api/user/user-register", {
+  fetch("http://localhost:8080/api/user/auth/user-register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -30,27 +31,29 @@ function register() {
     })
   })
     .then(response => {
-      if (response.ok) {
-        alert("🎉 Registration successful!");
-        window.location.href = "landing.html";
-
-      } else {
-        response.text().then(message => {
-          alert("❌ Registration failed: " + message);
-        });
-      }
+      if (response.ok) return response.json();
+      else return response.text().then(message => { throw new Error(message); });
+    })
+    .then(data => {
+      alert("Registration successful!");
+      localStorage.setItem("userName", data.userName);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("userProfilePic", data.profilePictureUrl);
+      localStorage.setItem("token", data.token);
+      window.location.href = "landing.html";
     })
     .catch(error => {
       console.error("Error:", error);
-      alert("🚨 Something went wrong. Please try again!");
+      alert("🚨 Registration not successful! " + error.message);
     });
 }
+
 
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  fetch("http://localhost:8080/api/user/user-login", {
+  fetch("http://localhost:8080/api/user/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -71,10 +74,11 @@ function login() {
     })
     .then(data => {
       alert("Login successful!");
-      localStorage.setItem("userName", data.name);//store username 
-      localStorage.setItem("userId", data.id);  // store the id here
+      localStorage.setItem("userName", data.userName);//store username 
+      localStorage.setItem("userId", data.userId);  // store the id here
       localStorage.setItem("userProfilePic", data.profilePictureUrl);
-      console.log("User ID that is returned:", data.id);
+      localStorage.setItem("token", data.token);
+      console.log(localStorage.getItem("token"));
 
       window.location.href = "landing.html";
 
@@ -99,10 +103,10 @@ function togglePassword() {
 
   if (passwordInput.type === "password") {
     passwordInput.type = "text";
-    icon.textContent = "🙈"; // change icon when visible
+    icon.textContent = "🙈";
   } else {
     passwordInput.type = "password";
-    icon.textContent = "👁️"; // back to original
+    icon.textContent = "👁️";
   }
 }
 

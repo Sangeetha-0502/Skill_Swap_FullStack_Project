@@ -1,21 +1,54 @@
 
-const urlParams = new URLSearchParams(window.location.search);
-const viewedUserId = urlParams.get("userId") || localStorage.getItem("userId");
-const isOwnProfile = viewedUserId === localStorage.getItem("userId");
+function getToken() {
+  return localStorage.getItem("token");
+}
 
+function getViewedUserId() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get("userId") || localStorage.getItem("userId");
+}
+
+function isOwnProfile() {
+  return getViewedUserId() === localStorage.getItem("userId");
+}
 // ✅ Load user profile on page load
 window.onload = () => {
+  const viewedUserId = getViewedUserId();
+  const token = getToken();
   if (!viewedUserId) {
     alert("You are not logged in!");
+    return;
+  }
+
+  if (!token) {
+    alert("Authentication token not found. Please log in again.");
+
+    window.location.href = "/login.html";
     return;
   }
   loadUserProfile(viewedUserId);
 };
 
-// ✅ Profile loading function (
+
 function loadUserProfile(userId) {
-  fetch(`http://localhost:8080/api/user/user-data/${userId}/`)
-    .then(res => res.json())
+  const token = getToken();
+  fetch(`http://localhost:8080/api/user/user-data/${userId}/`, {
+    method: "GET",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(res => {
+      if (!res.ok) {
+
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Unauthorized access. Please log in.");
+        }
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
     .then(user => {
       document.getElementById("username").textContent = user.name || "No name provided";
       document.getElementById("email").innerText = user.email || "Not provided";
@@ -40,9 +73,31 @@ function loadUserProfile(userId) {
       }
 
       const pp = document.getElementById("profilePic");
+
       if (user.profilePictureUrl) {
-        pp.src = `http://localhost:8080${user.profilePictureUrl}?t=${Date.now()}`;
-        pp.style.display = "block";
+        const token = localStorage.getItem("token");
+        fetch(`http://localhost:8080${user.profilePictureUrl}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch image');
+            }
+            return response.blob();
+          })
+          .then(blob => {
+            const imageUrl = URL.createObjectURL(blob);
+            pp.src = imageUrl;
+            pp.style.display = "block";
+          })
+          .catch(error => {
+            console.error("Error fetching profile picture:", error);
+            pp.style.display = "none";
+          });
       } else {
         pp.style.display = "none";
       }
@@ -55,12 +110,35 @@ function loadUserProfile(userId) {
         wrap.className = "cert-item";
 
         const img = document.createElement("img");
-        img.src = `http://localhost:8080${url}?t=${Date.now()}`;
         img.alt = "Certificate";
         img.className = "certificate-img";
+        // Fetch the certificate image with the token
+        fetch(`http://localhost:8080${url}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+
+        })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`Failed to load certificate image: ${res.status}`);
+            }
+            return res.blob();
+          })
+          .then(blob => {
+            const certImageUrl = URL.createObjectURL(blob);
+            img.src = certImageUrl;
+            img.onclick = () => openModal(certImageUrl);
+          })
+          .catch(err => {
+            console.error("Error loading certificate image:", err);
+            img.src = "";
+            img.alt = "Failed to load image";
+          });
+
         wrap.appendChild(img);
 
-        /* add delete button ONLY on your own profile */
         if (isOwnProfile) {
           const del = document.createElement("button");
           del.textContent = "Delete";
@@ -72,18 +150,39 @@ function loadUserProfile(userId) {
       });
 
 
-      fetch(`http://localhost:8080/api/user-skills/get-user-skills/${userId}`)
-        .then(res => res.json())
+      fetch(`http://localhost:8080/api/user-skills/get-user-skills/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+
+        }
+      )
+        .then(res => {
+          if (!res.ok) {
+            if (res.status === 401 || res.status === 403) {
+              throw new Error("Unauthorized access to skills.");
+            }
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(renderSkills)
         .catch(err => console.error("Error loading skills:", err));
     })
     .catch(err => {
       console.error("Failed to load user profile:", err);
-      alert("Error loading profile.");
+      alert("Error loading profile: " + err.message);
+
+      if (err.message.includes("Unauthorized")) {
+        window.location.href = "/login.html";
+      }
     });
 }
 
-//to hide the edit button in other user profile
+
 if (!isOwnProfile) {
   document.querySelectorAll("button").forEach(btn => {
     const text = btn.textContent.toLowerCase();
@@ -127,7 +226,7 @@ function renderSkills(skills) {
   skills.forEach(us => {
     const row = document.createElement("tr");
 
-    // --- skill name column ---
+
     const nameTd = document.createElement("td");
     const nameSpan = document.createElement("span");
     nameSpan.className = "value";
@@ -142,7 +241,6 @@ function renderSkills(skills) {
     row.appendChild(nameTd);
     row.appendChild(typeTd);
 
-    // add pencil only on own profile
     if (isOwnProfile) {
       const editBtn = document.createElement("button");
       editBtn.className = "edit-btn";
@@ -177,11 +275,19 @@ function renderSkills(skills) {
     tbody.appendChild(row);
   });
 }
+
 function deleteSkill(userSkillId) {
+  const viewedUserId = getViewedUserId();
+  const token = getToken();
   if (!confirm("Delete this skill?")) return;
 
   fetch(`http://localhost:8080/api/user-skills/delete-user-skill/${userSkillId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+
   })
     .then(r => {
       if (!r.ok) throw new Error("Deletion failed");
@@ -189,19 +295,15 @@ function deleteSkill(userSkillId) {
     })
     .then(() => {
       alert("Skill deleted ✅");
-      loadUserProfile(viewedUserId);   // refresh list
+      loadUserProfile(viewedUserId);
     })
     .catch(e => { console.error(e); alert("Could not delete skill"); });
 }
 
 
-/* -----------------------------------------------------------
-   INLINE‑EDIT handler for skill name  ⟶ PUT update‑name
-   and for skill type (TEACH/LEARN)   ⟶ PUT update‑type
-   --------------------------------------------------------- */
-document.getElementById("skillsTable")
-  .addEventListener("click", handleEditClick);    // only ONE listener now
 
+document.getElementById("skillsTable")
+  .addEventListener("click", handleEditClick);
 function handleEditClick(e) {
   const btn = e.target.closest(".edit-btn");
   if (!btn) return;
@@ -213,7 +315,7 @@ function handleEditClick(e) {
   const userSkillId = btn.dataset.userSkillId;
   const field = btn.dataset.field;
 
-  let editor;                                   // <input> or <select>
+  let editor;  // <input> or <select>
   if (field === "skillName") {
     editor = document.createElement("input");
     editor.type = "text";
@@ -233,12 +335,13 @@ function handleEditClick(e) {
   editor.addEventListener("keydown", ev => { if (ev.key === "Enter") save(); });
   editor.addEventListener("blur", save);
 
-  let saved = false;          // <‑‑ lives in the closure, starts false
+  let saved = false; // 
 
   async function save() {
-    if (saved) return;        // ignore any second call
-    saved = true;             // mark as handled
+    if (saved) return;
+    saved = true;
 
+    const token = getToken();
     const updated = editor.value.trim();
     if (!updated || updated === original) { revert(original); return; }
 
@@ -246,11 +349,25 @@ function handleEditClick(e) {
       if (field === "skillName") {
         const qs = new URLSearchParams({ skillName: updated }).toString();
         await fetch(`http://localhost:8080/api/user-skills/update-user-skill-name/${userSkillId}?${qs}`,
-          { method: "PUT" });
+          {
+            method: "PUT",
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+
+          });
         alert("skillName updated successfully");
       } else {
         await fetch(`http://localhost:8080/api/user-skills/update-user-skill-type/${userSkillId}?type=${encodeURIComponent(updated)}`,
-          { method: "PUT" });
+          {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+        alert("Skill type updated successfully");
       }
       revert(updated);
     } catch (err) {
@@ -261,22 +378,20 @@ function handleEditClick(e) {
   }
 
 
-  /* FIX‑3: guard against “node not a child” error */
+
   function revert(text) {
     const newSpan = document.createElement("span");
     newSpan.className = "value";
     newSpan.textContent = text;
 
-    if (td.contains(editor)) {                 // only replace if still present
+    if (td.contains(editor)) {
       td.replaceChild(newSpan, editor);
-    } else {                                   // editor already gone (double blur)
+    } else {
       td.appendChild(newSpan);
     }
   }
 }
 
-
-// Toggle functions
 function toggleLinkedInInput() {
   toggleDisplay("linkedInInputWrapper");
 }
@@ -306,8 +421,8 @@ function toggleDisplay(elementId) {
   }
 }
 
-// Submit functions
 function submitLinkedIn() {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   const linkedInUrl = document.getElementById("linkedInInput").value.trim();
 
@@ -315,9 +430,15 @@ function submitLinkedIn() {
     alert("Please enter your LinkedIn URL!");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; } // Added token check
 
   fetch(`http://localhost:8080/api/user/add-linkedin/${userId}?linkedInUrl=${encodeURIComponent(linkedInUrl)}`, {
-    method: "PUT"
+    method: "PUT",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+
   })
     .then(res => {
       if (!res.ok) throw new Error("Failed to update LinkedIn URL");
@@ -339,6 +460,7 @@ function submitLinkedIn() {
 }
 
 function submitGithub() {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   const githubUrl = document.getElementById("githubInput").value.trim();
 
@@ -346,9 +468,14 @@ function submitGithub() {
     alert("Please enter the GitHub URL");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; }
 
   fetch(`http://localhost:8080/api/user/add-github/${userId}?githubUrl=${encodeURIComponent(githubUrl)}`, {
-    method: "PUT"
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
   })
     .then(res => {
       if (!res.ok) throw new Error("Failed to update GitHub URL");
@@ -370,11 +497,13 @@ function submitGithub() {
 }
 
 function submitProfileUpdate() {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   if (!userId) {
     alert("User ID missing. Please login again.");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; }
 
   const nameInput = document.getElementById("nameInput");
   const bioInput = document.getElementById("bioInput");
@@ -397,7 +526,8 @@ function submitProfileUpdate() {
   fetch("http://localhost:8080/api/user/update-profile", {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({ userId, ...payload })
   })
@@ -433,6 +563,7 @@ function submitProfileUpdate() {
 }
 
 function uploadProfilePic() {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   const fileInput = document.getElementById("profilePicInput");
   const file = fileInput.files[0];
@@ -441,54 +572,89 @@ function uploadProfilePic() {
     alert("Please select an image and make sure you're logged in.");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; } // Added token check
 
   const formData = new FormData();
   formData.append("file", file);
 
   fetch(`http://localhost:8080/api/user/upload-profile-picture/${userId}`, {
     method: "POST",
+
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
     body: formData
   })
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+      }
+      return res.text();
+    })
     .then(imageUrl => {
       alert("✅ Profile picture updated!");
       const img = document.getElementById("profilePic");
-      img.src = "http://localhost:8080" + imageUrl + "?t=" + new Date().getTime();//important
-      img.style.display = "block";
-      fileInput.value = ""; // Reset input
+
+      fetch(`http://localhost:8080${imageUrl}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => res.blob())
+        .then(blob => {
+          img.src = URL.createObjectURL(blob);
+          img.style.display = "block";
+        })
+        .catch(err => {
+          console.error("Error displaying uploaded profile picture:", err);
+          img.style.display = "none";
+        });
+
+      fileInput.value = "";
     })
     .catch(err => {
       console.error(err);
-      alert("Failed to upload profile picture.");
+      alert("Failed to upload profile picture: " + err.message);
     });
 }
 
 function deleteProfilePic() {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   if (!userId) {
     alert("You're not logged in.");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; }
 
   if (!confirm("Are you sure you want to delete your profile picture?")) return;
 
   fetch(`http://localhost:8080/api/user/delete-profile-picture/${userId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
   })
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Deletion failed: ${res.status} ${res.statusText}`);
+      }
+      return res.text();
+    })
     .then(msg => {
       alert("🗑️ " + msg);
       const img = document.getElementById("profilePic");
       img.style.display = "none";
-      img.src = ""; // Remove src for safety
+      img.src = "";
     })
     .catch(err => {
       console.error(err);
-      alert("Failed to delete profile picture.");
+      alert("Failed to delete profile picture: " + err.message);
     });
 }
 
 function uploadCertificate() {
+  const token = getToken();
   const fileInput = document.getElementById("certificateInput");
   const file = fileInput.files[0];
 
@@ -502,15 +668,24 @@ function uploadCertificate() {
     alert("User not logged in!");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; }
 
   const formData = new FormData();
   formData.append("file", file);
 
   fetch(`http://localhost:8080/api/user/upload-certificate/${userId}`, {
     method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
     body: formData
   })
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+      }
+      return res.text();
+    })
     .then(url => {
       const certContainer = document.getElementById("certificates");
 
@@ -518,10 +693,26 @@ function uploadCertificate() {
       certDiv.classList.add("cert-item");
 
       const certImg = document.createElement("img");
-      certImg.src = "http://localhost:8080" + url + "?t=" + new Date().getTime();
       certImg.alt = "Certificate";
       certImg.classList.add("certificate-img");
-      certImg.onclick = () => openModal(certImg.src);
+
+
+      fetch(`http://localhost:8080${url}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => res.blob())
+        .then(blob => {
+          const certImageUrl = URL.createObjectURL(blob);
+          certImg.src = certImageUrl;
+          certImg.onclick = () => openModal(certImageUrl);
+        })
+        .catch(err => {
+          console.error("Error displaying uploaded certificate:", err);
+          certImg.src = "";
+          certImg.alt = "Failed to load image";
+        });
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "Delete";
@@ -538,12 +729,13 @@ function uploadCertificate() {
     })
     .catch(err => {
       console.error("Upload failed", err);
-      alert("Certificate upload failed!");
+      alert("Certificate upload failed: " + err.message);
     });
 }
 
-//function to open the image 
+
 function openModal(imgSrc) {
+  const token = getToken();
   const modal = document.getElementById("imageModal");
   const modalImg = document.getElementById("modalImage");
   modal.style.display = "flex";
@@ -555,14 +747,19 @@ function closeModal() {
 }
 
 function deleteCertificate(certificateUrl) {
+  const token = getToken();
   const userId = localStorage.getItem("userId");
   if (!userId || !certificateUrl) {
     alert("User or certificate URL missing!");
     return;
   }
+  if (!token) { alert("Not authenticated."); return; }
 
   fetch(`http://localhost:8080/api/user/delete-certificate/${userId}?certificateUrl=${encodeURIComponent(certificateUrl)}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    }
   })
     .then(res => {
       if (!res.ok) throw new Error("Failed to delete certificate");
@@ -570,12 +767,10 @@ function deleteCertificate(certificateUrl) {
     })
     .then(msg => {
       alert(msg);
-      loadUserProfile(userId); // Refresh the UI with updated list
+      loadUserProfile(userId);
     })
     .catch(err => {
       console.error(err);
-      alert("Error deleting certificate");
+      alert("Error deleting certificate: " + err.message);
     });
 }
-
-

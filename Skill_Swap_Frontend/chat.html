@@ -101,7 +101,9 @@
     </div>
 
     <script>
+
         document.addEventListener("DOMContentLoaded", () => {
+            const token = localStorage.getItem("token");
             const senderId = localStorage.getItem("userId");
             const receiverId = localStorage.getItem("chatReceiverId");
 
@@ -118,7 +120,11 @@
             input.focus();
 
             function loadMessages() {
-                fetch(`http://localhost:8080/api/chat/history?userId1=${senderId}&userId2=${receiverId}`)
+                fetch(`http://localhost:8080/api/chat/history?userId1=${senderId}&userId2=${receiverId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                })
                     .then(res => {
                         if (!res.ok) {
                             throw new Error("Failed to fetch messages");
@@ -163,6 +169,7 @@
             }
 
             function sendMessage() {
+                const token = localStorage.getItem("token");
                 const content = input.value.trim();
                 if (!content) return;
 
@@ -178,7 +185,10 @@
                 // Now send to backend
                 fetch("http://localhost:8080/api/chat/send", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({ senderId, receiverId, content })
                 })
                     .then(response => {

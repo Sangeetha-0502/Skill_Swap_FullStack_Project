@@ -1,25 +1,4 @@
-// document.addEventListener("DOMContentLoaded", () => {
-//     const noteInput = document.getElementById("noteInput");
-//     const submitNoteBtn = document.getElementById("submitNoteBtn");
-//     const skipBtn = document.getElementById("skipBtn");
 
-//     submitNoteBtn.addEventListener("click", () => {
-//         const note = noteInput.value.trim();
-//         if (note) {
-//             // 📨 Send request with note
-//             console.log("Note submitted:", note);
-//             alert("Request sent with note: " + note);
-//         } else {
-//             alert("Please enter a note or click 'Skip'");
-//         }
-//     });
-
-//     skipBtn.addEventListener("click", () => {
-//         // 📨 Send request without note
-//         console.log("Request sent without note.");
-//         alert("Request sent without note.");
-//     });
-// });
 
 // ✅ Get matchId from URL
 function getMatchIdFromUrl() {
@@ -75,9 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function fetchSkillIds(requestedSkill, offeredSkill) {
+    const token = localStorage.getItem("token");
     const url = `http://localhost:8080/api/skills/get-skills-ids?requested=${encodeURIComponent(requestedSkill)}&offered=${encodeURIComponent(offeredSkill)}`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
     if (!response.ok) {
         throw new Error("Could not fetch skill IDs. Check if skill names are correct.");
     }
@@ -87,6 +71,7 @@ async function fetchSkillIds(requestedSkill, offeredSkill) {
 
 
 function sendSwapRequest(receiverId, requestedSKillId, offeredSkillId, note) {
+    const token = localStorage.getItem("token");
     const senderId = localStorage.getItem("userId");
 
     // Optional: Add offeredSkillId and requestedSkillId based on dropdown or auto selection
@@ -102,7 +87,9 @@ function sendSwapRequest(receiverId, requestedSKillId, offeredSkillId, note) {
     fetch("http://localhost:8080/api/swap-requests/send-swap-request", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+
         },
         body: JSON.stringify(requestBody)
     })

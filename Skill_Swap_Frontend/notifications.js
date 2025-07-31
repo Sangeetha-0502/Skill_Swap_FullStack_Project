@@ -1,4 +1,6 @@
+
 document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
@@ -7,7 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    fetch(`http://localhost:8080/api/swap-requests/get-notifications/${userId}`)
+    fetch(`http://localhost:8080/api/swap-requests/get-notifications/${userId}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    })
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById("notification-list");
@@ -93,8 +99,13 @@ function goBack() {
     window.location.href = "landing.html";
 }
 function updateStatus(requestId, newStatus) {
+    const token = localStorage.getItem("token");
     fetch(`http://localhost:8080/api/swap-requests/update-request-status/${requestId}?status=${newStatus}`, {
         method: "PUT",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+
     })
         .then(response => {
             if (response.ok) {

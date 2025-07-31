@@ -42,18 +42,9 @@ public class UserController {
 		this.userservice = userservice;
 	}
 
-	@PostMapping("/user-register")
-	public ResponseEntity<?> RegisterUser(@RequestBody User user){//request body annotation is responsible for converting the json data into a java object 
-		try {
-			User saveduser = userservice.registerUser(user);
-			saveduser.setPassword(null);
-			return ResponseEntity.ok(saveduser);
-		} catch (Exception e) {
-			 return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
 	
-	@PostMapping("/forgot-password")
+	
+	@PostMapping("/auth/forgot-password")
 	public ResponseEntity<String> forgotPassword(@RequestParam String email) {
 		try {
 			String  msg = userservice.forgotPassword(email);
@@ -66,7 +57,7 @@ public class UserController {
 	}
 	
 
-	@PostMapping("/reset-password")
+	@PostMapping("/auth/reset-password")
 	public ResponseEntity<String> resetPassword(@RequestBody PasswordDto passwordDto) {
 	    try {
 	    	userservice.resetPassword(passwordDto);  // service method call
@@ -77,23 +68,7 @@ public class UserController {
 	        return ResponseEntity.status(500).body("Something went wrong!");
 	    }
 	}
-
 	
-	@PostMapping("/user-login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-	    Optional<User> optionalUser = userservice.loginUser(
-	        loginRequest.getEmail(),
-	        loginRequest.getPassword()
-	    );
-
-	    if (optionalUser.isPresent()) {
-	        User user = optionalUser.get();
-	        user.setPassword(null);
-	        return ResponseEntity.ok(user);
-	    } else {
-	        return ResponseEntity.status(401).body("Invalid cre[dentials");
-	    }
-	}
 	@PutMapping("/update-profile")
 	public ResponseEntity<?> updateProfile(@RequestBody UserProfileUpdateRequest updateRequest) {
 	    try {
@@ -190,6 +165,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+    
     
     @GetMapping("/user-data/{userId}/")
     public ResponseEntity<?> getUserData(@PathVariable  Long userId){

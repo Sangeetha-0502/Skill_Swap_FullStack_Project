@@ -1,7 +1,7 @@
 
 
 function addSkill() {
-
+  const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const skillName = document.getElementById("skillName").value;
   const skillType = document.getElementById("skillType").value;
@@ -20,6 +20,7 @@ function addSkill() {
   fetch("http://localhost:8080/api/user-skills/add-user-skill", {
     method: "POST",
     headers: {
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify(payload)
@@ -28,6 +29,7 @@ function addSkill() {
       if (res.ok) {
         alert("Skill added successfully!");
         document.getElementById("skillName").value = "";
+        window.location.href = "userprofile.html";
       } else {
         alert("Failed to add skill.");
       }

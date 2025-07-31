@@ -1,23 +1,19 @@
 let initialMatchList = [];
 
-/* -----------------------------
- * Load matches when DOM is ready
- * ----------------------------- */
+
 document.addEventListener("DOMContentLoaded", () => {
     loadMatches();
 
     const searchBox = document.getElementById("nameSearchInput");
     searchBox.addEventListener("input", debounce(searchUsersByName, 300));
 
-    // If there's already input (e.g., autofill), search immediately
+
     if (searchBox.value.trim() !== "") {
         searchUsersByName();
     }
 });
 
-/* -----------------------------
- * Debounce to limit rapid typing calls
- * ----------------------------- */
+
 function debounce(fn, ms = 300) {
     let t;
     return (...args) => {
@@ -26,17 +22,20 @@ function debounce(fn, ms = 300) {
     };
 }
 
-/* -----------------------------
- * Load matches from backend
- * ----------------------------- */
+
 function loadMatches() {
+    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
     if (!userId) {
         alert("You must log in first.");
         return;
     }
 
-    fetch(`http://localhost:8080/api/skill-matching/match/${userId}`)
+    fetch(`http://localhost:8080/api/skill-matching/match/${userId}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
         .then(res => {
             if (!res.ok) throw new Error("Match fetch failed");
             return res.json();
@@ -51,20 +50,23 @@ function loadMatches() {
         });
 }
 
-/* -----------------------------
- * Search users by name
- * ----------------------------- */
+
 function searchUsersByName() {
+    const token = localStorage.getItem("token");
     const searchBox = document.getElementById("nameSearchInput");
     const name = searchBox.value.trim();
 
-    // If input is empty, restore the full list
+
     if (name === "") {
         renderMatches(initialMatchList);
         return;
     }
 
-    fetch(`http://localhost:8080/api/skill-matching/search-user-name?name=${encodeURIComponent(name)}`)
+    fetch(`http://localhost:8080/api/skill-matching/search-user-name?name=${encodeURIComponent(name)}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
         .then(res => {
             if (!res.ok) throw new Error("Failed to search users");
             return res.json();
@@ -76,9 +78,7 @@ function searchUsersByName() {
         });
 }
 
-/* -----------------------------
- * Render match cards to the grid
- * ----------------------------- */
+
 function renderMatches(matches) {
     const grid = document.getElementById("matchGrid");
     const empty = document.getElementById("emptyMsg");
@@ -101,9 +101,7 @@ function renderMatches(matches) {
     });
 }
 
-/* -----------------------------
- * Navigation functions
- * ----------------------------- */
+
 function sendRequest(matchId) {
     window.location.href = `noteBox.html?matchId=${matchId}`;
 }

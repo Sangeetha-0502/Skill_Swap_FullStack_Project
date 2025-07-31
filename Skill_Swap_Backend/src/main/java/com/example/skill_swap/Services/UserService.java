@@ -13,10 +13,14 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.skill_swap.Entities.CustomUserDetails;
 import com.example.skill_swap.Entities.User;
 import com.example.skill_swap.Repositories.UserRepository;
 import com.example.skill_swap.dtoClasses.PasswordDto;
@@ -25,7 +29,10 @@ import com.example.skill_swap.dtoClasses.UserData;
 
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService{
+	
+	@Autowired
+	private PasswordEncoder encoder;
 	
 	@Autowired
 	private JavaMailSender mailSender;
@@ -39,19 +46,8 @@ public class UserService {
 		if(userRepository.findByEmail(user.getEmail()).isPresent()) {
 			throw new Exception("This email id is already registered");
 		}
+		user.setPassword(encoder.encode(user.getPassword()));
 		return userRepository.save(user);
-	}
-	
-	public Optional<User> loginUser(String email, String password){
-		 Optional<User> userOpt = userRepository.findByEmail(email);
-		 
-		 if(userOpt.isPresent()) {
-			 User user = userOpt.get();
-			 if(password.equals(user.getPassword())) {
-				 return Optional.of(user);
-			 }
-		 }
-		 return Optional.empty();
 	}
 	
 	public User updateUserProfile(Long userId, String name,String email, String bio) throws Exception {
@@ -180,9 +176,9 @@ public class UserService {
         }
     }
 
-
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
     
     public UserData getUserProfile(Long userId) throws Exception {
@@ -214,7 +210,7 @@ public class UserService {
             }
 
             // Use password encoder to hash password
-            user.setPassword(newPassword);
+            user.setPassword(encoder.encode(newPassword));
 
             // Clear reset token and expiry
             user.setResetToken(null);
@@ -225,7 +221,6 @@ public class UserService {
             throw new RuntimeException("Invalid token");
         }
     }
-
     
     public String forgotPassword(String email) throws Exception {
     	Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -252,5 +247,17 @@ public class UserService {
         	throw new RuntimeException("User not found");
         }
     }
+
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		User user = userRepository.findByEmail(email).orElseThrow(() ->  new UsernameNotFoundException("user not found"));
+		return new CustomUserDetails(user);
+	}
+
+	public Optional<User> getUserById(Long userId) {
+		return userRepository.findById(userId);
+	}
+ 
+	
 
 }
