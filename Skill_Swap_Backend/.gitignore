@@ -1,6 +1,6 @@
 # Ignore secret and config files
 # Ignore secrets
-Skill_Swap_Backend/src/main/resources/credentials.properties
+src/main/resources/credentials.properties
 .env
 *.key
 *.pem
