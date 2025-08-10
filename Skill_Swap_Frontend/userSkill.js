@@ -17,7 +17,7 @@ function addSkill() {
     type: skillType
   };
 
-  fetch("http://localhost:8080/api/user-skills/add-user-skill", {
+  fetch(`${APP_BASE_API_URL}/api/user-skills/add-user-skill`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,

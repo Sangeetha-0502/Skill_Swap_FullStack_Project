@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const profile_iconElement = document.getElementById("profile-icon");
 
   if (userProfilePic && profile_iconElement) {
-    userProfilePic = "http://localhost:8080" + userProfilePic + "?t=" + new Date().getTime();
+    userProfilePic = `${APP_BASE_API_URL}${userProfilePic}?t=${new Date().getTime()}`;
     profile_iconElement.src = userProfilePic;
   }
 
@@ -19,7 +19,7 @@ function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  fetch("http://localhost:8080/api/user/auth/user-register", {
+  fetch(`${APP_BASE_API_URL}/api/user/auth/user-register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -53,7 +53,7 @@ function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  fetch("http://localhost:8080/api/user/auth/login", {
+  fetch(`${APP_BASE_API_URL}/api/user/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -109,5 +109,4 @@ function togglePassword() {
     icon.textContent = "👁️";
   }
 }
-
 

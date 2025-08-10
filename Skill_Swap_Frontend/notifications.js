@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    fetch(`http://localhost:8080/api/swap-requests/get-notifications/${userId}`, {
+    fetch(`${APP_BASE_API_URL}/api/swap-requests/get-notifications/${userId}`, {
         headers: {
             "Authorization": `Bearer ${token}`,
         }
@@ -100,7 +100,7 @@ function goBack() {
 }
 function updateStatus(requestId, newStatus) {
     const token = localStorage.getItem("token");
-    fetch(`http://localhost:8080/api/swap-requests/update-request-status/${requestId}?status=${newStatus}`, {
+    fetch(`${APP_BASE_API_URL}/api/swap-requests/update-request-status/${requestId}?status=${newStatus}`, {
         method: "PUT",
         headers: {
             "Authorization": `Bearer ${token}`,

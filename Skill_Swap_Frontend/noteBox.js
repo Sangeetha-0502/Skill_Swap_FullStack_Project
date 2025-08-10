@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function fetchSkillIds(requestedSkill, offeredSkill) {
     const token = localStorage.getItem("token");
-    const url = `http://localhost:8080/api/skills/get-skills-ids?requested=${encodeURIComponent(requestedSkill)}&offered=${encodeURIComponent(offeredSkill)}`;
+    const url = `${APP_BASE_API_URL}/api/skills/get-skills-ids?requested=${encodeURIComponent(requestedSkill)}&offered=${encodeURIComponent(offeredSkill)}`;
 
     const response = await fetch(url, {
         headers: {
@@ -84,7 +84,7 @@ function sendSwapRequest(receiverId, requestedSKillId, offeredSkillId, note) {
 
     };
 
-    fetch("http://localhost:8080/api/swap-requests/send-swap-request", {
+    fetch(`${APP_BASE_API_URL}/api/swap-requests/send-swap-request`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

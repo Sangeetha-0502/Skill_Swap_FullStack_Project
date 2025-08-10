@@ -31,7 +31,7 @@ function loadMatches() {
         return;
     }
 
-    fetch(`http://localhost:8080/api/skill-matching/match/${userId}`, {
+    fetch(`${APP_BASE_API_URL}/api/skill-matching/match/${userId}`, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
@@ -62,7 +62,7 @@ function searchUsersByName() {
         return;
     }
 
-    fetch(`http://localhost:8080/api/skill-matching/search-user-name?name=${encodeURIComponent(name)}`, {
+    fetch(`${APP_BASE_API_URL}/api/skill-matching/search-user-name?name=${encodeURIComponent(name)}`, {
         headers: {
             "Authorization": `Bearer ${token}`
         }

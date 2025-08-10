@@ -32,7 +32,7 @@ window.onload = () => {
 
 function loadUserProfile(userId) {
   const token = getToken();
-  fetch(`http://localhost:8080/api/user/user-data/${userId}/`, {
+  fetch(`${APP_BASE_API_URL}/api/user/user-data/${userId}/`, {
     method: "GET",
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -76,7 +76,7 @@ function loadUserProfile(userId) {
 
       if (user.profilePictureUrl) {
         const token = localStorage.getItem("token");
-        fetch(`http://localhost:8080${user.profilePictureUrl}`, {
+        fetch(`${APP_BASE_API_URL}${user.profilePictureUrl}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ function loadUserProfile(userId) {
         img.alt = "Certificate";
         img.className = "certificate-img";
         // Fetch the certificate image with the token
-        fetch(`http://localhost:8080${url}`, {
+        fetch(`${APP_BASE_API_URL}${url}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -150,7 +150,7 @@ function loadUserProfile(userId) {
       });
 
 
-      fetch(`http://localhost:8080/api/user-skills/get-user-skills/${userId}`,
+      fetch(`${APP_BASE_API_URL}/api/user-skills/get-user-skills/${userId}`,
         {
           method: "GET",
           headers: {
@@ -281,7 +281,7 @@ function deleteSkill(userSkillId) {
   const token = getToken();
   if (!confirm("Delete this skill?")) return;
 
-  fetch(`http://localhost:8080/api/user-skills/delete-user-skill/${userSkillId}`, {
+  fetch(`${APP_BASE_API_URL}/api/user-skills/delete-user-skill/${userSkillId}`, {
     method: "DELETE",
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -348,7 +348,7 @@ function handleEditClick(e) {
     try {
       if (field === "skillName") {
         const qs = new URLSearchParams({ skillName: updated }).toString();
-        await fetch(`http://localhost:8080/api/user-skills/update-user-skill-name/${userSkillId}?${qs}`,
+        await fetch(`${APP_BASE_API_URL}/api/user-skills/update-user-skill-name/${userSkillId}?${qs}`,
           {
             method: "PUT",
             headers: {
@@ -359,7 +359,7 @@ function handleEditClick(e) {
           });
         alert("skillName updated successfully");
       } else {
-        await fetch(`http://localhost:8080/api/user-skills/update-user-skill-type/${userSkillId}?type=${encodeURIComponent(updated)}`,
+        await fetch(`${APP_BASE_API_URL}/api/user-skills/update-user-skill-type/${userSkillId}?type=${encodeURIComponent(updated)}`,
           {
             method: "PUT",
             headers: {
@@ -432,7 +432,7 @@ function submitLinkedIn() {
   }
   if (!token) { alert("Not authenticated."); return; } // Added token check
 
-  fetch(`http://localhost:8080/api/user/add-linkedin/${userId}?linkedInUrl=${encodeURIComponent(linkedInUrl)}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/add-linkedin/${userId}?linkedInUrl=${encodeURIComponent(linkedInUrl)}`, {
     method: "PUT",
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -470,7 +470,7 @@ function submitGithub() {
   }
   if (!token) { alert("Not authenticated."); return; }
 
-  fetch(`http://localhost:8080/api/user/add-github/${userId}?githubUrl=${encodeURIComponent(githubUrl)}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/add-github/${userId}?githubUrl=${encodeURIComponent(githubUrl)}`, {
     method: "PUT",
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -523,7 +523,7 @@ function submitProfileUpdate() {
     return;
   }
 
-  fetch("http://localhost:8080/api/user/update-profile", {
+  fetch(`${APP_BASE_API_URL}/api/user/update-profile`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -577,7 +577,7 @@ function uploadProfilePic() {
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch(`http://localhost:8080/api/user/upload-profile-picture/${userId}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/upload-profile-picture/${userId}`, {
     method: "POST",
 
     headers: {
@@ -593,9 +593,11 @@ function uploadProfilePic() {
     })
     .then(imageUrl => {
       alert("✅ Profile picture updated!");
-      const img = document.getElementById("profilePic");
 
-      fetch(`http://localhost:8080${imageUrl}`, {
+      const img = document.getElementById("profilePic");
+      localStorage.setItem("userProfilePic", imageUrl);
+
+      fetch(`${APP_BASE_API_URL}${imageUrl}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -629,7 +631,7 @@ function deleteProfilePic() {
 
   if (!confirm("Are you sure you want to delete your profile picture?")) return;
 
-  fetch(`http://localhost:8080/api/user/delete-profile-picture/${userId}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/delete-profile-picture/${userId}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`
@@ -673,7 +675,7 @@ function uploadCertificate() {
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch(`http://localhost:8080/api/user/upload-certificate/${userId}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/upload-certificate/${userId}`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`
@@ -697,7 +699,7 @@ function uploadCertificate() {
       certImg.classList.add("certificate-img");
 
 
-      fetch(`http://localhost:8080${url}`, {
+      fetch(`${APP_BASE_API_URL}${url}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -755,7 +757,7 @@ function deleteCertificate(certificateUrl) {
   }
   if (!token) { alert("Not authenticated."); return; }
 
-  fetch(`http://localhost:8080/api/user/delete-certificate/${userId}?certificateUrl=${encodeURIComponent(certificateUrl)}`, {
+  fetch(`${APP_BASE_API_URL}/api/user/delete-certificate/${userId}?certificateUrl=${encodeURIComponent(certificateUrl)}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`,
