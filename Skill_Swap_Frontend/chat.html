@@ -184,7 +184,7 @@
                 input.value = "";
 
                 // Now send to backend
-                fetch(`APP_BASE_API_URL/api/chat/send`, {
+                fetch(`${APP_BASE_API_URL}/api/chat/send`, {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${token}`,
