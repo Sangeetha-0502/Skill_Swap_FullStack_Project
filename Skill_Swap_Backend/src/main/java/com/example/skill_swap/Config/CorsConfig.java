@@ -25,7 +25,7 @@ public class CorsConfig {
 //        };
 //    }
 	
-	@Value("${app.allowed.origins}")
+	@Value("#{'${app.allowed.origins}'.split(',')}")
 	private String[] allowedOrigins;
     
     @Bean

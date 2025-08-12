@@ -1,10 +1,10 @@
-package com.example.book_exchange.book_exchange_project;
+package com.example.skill_swap.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BookExchangeProjectApplicationTests {
+class SkillSwapProjectApplicationTest {
 
 	@Test
 	void contextLoads() {
